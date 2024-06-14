@@ -1,6 +1,6 @@
 
 const { DataTypes, Model} = require('sequelize');
-const sequelize = require('../db'); // Use the sequelize instance
+const sequelize = require('../db'); 
 
 class Loan extends Model {}
    

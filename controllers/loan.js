@@ -1,10 +1,76 @@
 const Loan = require("../models/loans");
+const tf = require("@tensorflow/tfjs-node");
+
+const path = require("path");
+const { industry_sectors, regions, credit_ratings } = require("../constants");
 
 async function createLoan(req, res) {
   try {
-    loanData = req.body;
-    const loan = await Loan.create(loanData);
-    res.status(201).json(loan);
+    class L2 {
+      static className = "L2";
+      constructor(config) {
+        return tf.regularizers.l2(config);
+      }
+    }
+
+    tf.serialization.registerClass(L2);
+
+    const modelPath = "file://../ml/model.json";
+    const model = await tf.loadLayersModel(`file://${modelPath}`);
+
+    const loanData = req.body;
+    const sectorIndex = industry_sectors[loanData.Sector];
+    const regionIndex = regions[loanData.Region];
+    const creditRatingIndex = credit_ratings.indexOf(
+      loanData.Assigned_Credit_Rating
+    );
+
+    const fs = require("fs");
+
+    const path = require("path");
+
+    const scalerPath = path.join(__dirname, "../ml/scaler.json"); 
+
+    const scaler = JSON.parse(fs.readFileSync(scalerPath, "utf8"));
+    const mean = scaler.mean;
+    const std = scaler.std;
+
+    /**
+     * Fonction pour normaliser un tableau de données
+     * @param {Array} data - Tableau de données à normaliser
+     * @returns {Array} Données normalisées
+     */
+    function normalizeData(data) {
+      return data.map((value, index) => {
+        return (value - mean[index]) / std[index];
+      });
+    }
+
+    // Prepare input data according to the model's expected features
+    const inputData = [
+      parseFloat(loanData.Debt_to_Income_Ratio),
+      parseFloat(loanData.Loan_to_Value_Ratio),
+      parseFloat(loanData.Annual_Income),
+      parseFloat(loanData.Loan_Amount),
+      parseFloat(loanData.Loan_Term_Years),
+      parseFloat(loanData.Subordination),
+      parseFloat(loanData.Collateral_Value),
+      creditRatingIndex,
+      sectorIndex,
+      regionIndex,
+    ];
+
+    const normalizedData = normalizeData(inputData);
+
+    const inputTensor = tf.tensor2d(
+      [normalizedData],
+      [1, normalizedData.length]
+    );
+
+    const predictions = await model.predict(inputTensor).data();
+
+    const formattedPredictions = Array.from(predictions); 
+    res.status(200).json({ prediction: formattedPredictions });
   } catch (error) {
     console.error("Error creating loan:", error);
     res.status(500).json({ error: error.message });

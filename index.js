@@ -9,8 +9,7 @@ const port = 8800;
 app.use(bodyParser.json());
 app.use(express.json());
 
-app.use('/api', loanRoutes);
-
+app.use("/api", loanRoutes);
 
 async function connectDB() {
   try {
@@ -32,7 +31,7 @@ async function init() {
   } catch (error) {
     console.error("Unable to launch the server", error);
   }
-  app.post("/api/loans", createLoan);
+  app.post("/loans", createLoan);
 }
 
 init();
