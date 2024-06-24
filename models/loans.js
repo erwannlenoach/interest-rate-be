@@ -43,6 +43,7 @@ class Loan extends Model {}
     }
   }, {
     sequelize,
+    tableName: 'loans',
     modelName: 'Loan',
   }
 );
