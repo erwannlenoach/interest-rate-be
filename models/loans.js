@@ -1,10 +1,11 @@
-
-const { DataTypes, Model} = require('sequelize');
-const sequelize = require('../db'); 
+const { DataTypes, Model } = require("sequelize");
+const sequelize = require("../db");
+const User = require("./users");
 
 class Loan extends Model {}
-   
-  Loan.init({
+
+Loan.init(
+  {
     debt_to_income_ratio: {
       type: DataTypes.FLOAT,
     },
@@ -16,11 +17,11 @@ class Loan extends Model {}
     },
     loan_amount: {
       type: DataTypes.FLOAT,
-      allowNull: false
+      allowNull: false,
     },
     collateral_value: {
       type: DataTypes.FLOAT,
-      allowNull: false
+      allowNull: false,
     },
     political_stability_index: {
       type: DataTypes.INTEGER,
@@ -30,7 +31,7 @@ class Loan extends Model {}
     },
     loan_term_years: {
       type: DataTypes.FLOAT,
-      allowNull: false
+      allowNull: false,
     },
     company_credit_rating_value: {
       type: DataTypes.FLOAT,
@@ -40,12 +41,23 @@ class Loan extends Model {}
     },
     interest_rate: {
       type: DataTypes.FLOAT,
-    }
-  }, {
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: User,
+        key: "id",
+      },
+    },
+  },
+  {
     sequelize,
-    tableName: 'loans',
-    modelName: 'Loan',
+    tableName: "loans",
+    modelName: "Loan",
   }
 );
-module.exports = Loan;
 
+User.hasMany(Loan, { foreignKey: "userId" });
+Loan.belongsTo(User, { foreignKey: "userId" });
+
+module.exports = Loan;
