@@ -43,10 +43,10 @@ async function createUsers(req, res) {
 }
 
 async function connexionUser(req, res) {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
   try {
     const user = await User.findOne({
-      where: { username },
+      where: { email },
     });
 
     if (!user) {
