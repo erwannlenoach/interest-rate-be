@@ -57,6 +57,19 @@ const creditRatings = [
   "C",
 ];
 
+const defaultUsers = [
+  { email: "user1@example.com", username: "user1", password: "password1" },
+  { email: "user2@example.com", username: "user2", password: "password2" },
+  { email: "user3@example.com", username: "user3", password: "password3" },
+  { email: "user4@example.com", username: "user4", password: "password4" },
+  { email: "user5@example.com", username: "user5", password: "password5" },
+  { email: "user6@example.com", username: "user6", password: "password6" },
+  { email: "user7@example.com", username: "user7", password: "password7" },
+  { email: "user8@example.com", username: "user8", password: "password8" },
+  { email: "user9@example.com", username: "user9", password: "password9" },
+  { email: "user10@example.com", username: "user10", password: "password10" },
+];
+
 const mockLoans = [
   {
     debt_to_income_ratio: 0.4,
@@ -70,6 +83,7 @@ const mockLoans = [
     company_credit_rating_value: 7,
     subordination: 1,
     interest_rate: 5,
+    userId: 1,
   },
   {
     debt_to_income_ratio: 0.3,
@@ -83,6 +97,7 @@ const mockLoans = [
     company_credit_rating_value: 8,
     subordination: 2,
     interest_rate: 4.5,
+    userId: 2,
   },
   {
     debt_to_income_ratio: 0.2,
@@ -96,6 +111,7 @@ const mockLoans = [
     company_credit_rating_value: 9,
     subordination: 3,
     interest_rate: 4,
+    userId: 1,
   },
   {
     debt_to_income_ratio: 0.5,
@@ -109,6 +125,7 @@ const mockLoans = [
     company_credit_rating_value: 6,
     subordination: 1,
     interest_rate: 5.5,
+    userId: 3,
   },
   {
     debt_to_income_ratio: 0.4,
@@ -122,7 +139,14 @@ const mockLoans = [
     company_credit_rating_value: 7.5,
     subordination: 2,
     interest_rate: 5.2,
+    userId: 1,
   },
 ];
 
-module.exports = { industrySectors, regions, creditRatings, mockLoans };
+module.exports = {
+  industrySectors,
+  regions,
+  creditRatings,
+  defaultUsers,
+  mockLoans,
+};

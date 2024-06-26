@@ -2,7 +2,7 @@ const Loan = require("./models/loans");
 const User = require("./models/users");
 
 const sequelize = require("./db");
-const { populateLoans } = require("./controllers/loan");
+const { generateUsers, generateLoans } = require("./seeder");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -21,9 +21,7 @@ app.use("/api", userRoutes);
 async function connectDB() {
   try {
     await sequelize.authenticate();
-    await sequelize.sync();
-    console.log("sync");
-    await populateLoans();
+    await sequelize.sync({force:true});
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
@@ -31,6 +29,8 @@ async function connectDB() {
 
 async function init() {
   await connectDB();
+  await generateUsers();
+  await generateLoans();
   try {
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);

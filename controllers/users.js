@@ -4,17 +4,36 @@ const User = require("../models/users");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const crypto = require('crypto');
-const secretKey = crypto.randomBytes(64).toString('hex');
+const crypto = require("crypto");
+const secretKey = crypto.randomBytes(64).toString("hex");
 
 async function createUsers(req, res) {
-  const { username, password } = req.body;
+  const { email, username, password } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, password: hashedPassword });
+    console.log(
+      "Debug: Email, Username, HashedPassword:",
+      email,
+      username,
+      hashedPassword
+    );
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: "User already exists" });
+    }
+
+    const user = await User.create({
+      email,
+      username,
+      password: hashedPassword,
+    });
     res.status(201).json({ message: "User created", user });
   } catch (error) {
+    console.error("Error in createUsers:", error);
+
     if (error.name === "SequelizeUniqueConstraintError") {
       res.status(500).json({ error: "User already exists" });
     } else {
@@ -29,7 +48,6 @@ async function connexionUser(req, res) {
     const user = await User.findOne({
       where: { username },
     });
-
 
     if (!user) {
       return res.status(400).json({ error: "Invalid credentials" });
@@ -47,7 +65,24 @@ async function connexionUser(req, res) {
   } catch (error) {
     console.error("Error finding the user", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+}
 
+async function getUser(req, res) {
+  try {
+    const { username } = req.body;
+    const user = await User.findOne({
+      where: { username },
+      include: [
+        {
+          model: Loan,
+          as: "loans",
+        },
+      ],
+    });
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error("Error getting loans:", error);
   }
 }
 
@@ -72,4 +107,4 @@ async function authenticateToken(req, res, next) {
   }
 }
 
-module.exports = { createUsers, connexionUser, authenticateToken };
+module.exports = { createUsers, connexionUser, authenticateToken, getUser };

@@ -3,12 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const Loan = require("../models/loans");
 
-const {
-  industrySectors,
-  regions,
-  creditRatings,
-  mockLoans,
-} = require("../constants");
+const { industrySectors, regions, creditRatings } = require("../constants");
 
 const modelPath = "file://../ml/model.json";
 
@@ -95,17 +90,6 @@ async function getLoans(req, res) {
   }
 }
 
-async function populateLoans() {
-  try {
-    for (const loan of mockLoans) {
-      await Loan.create(loan);
-    }
-    console.log("Loans populated successfully.");
-  } catch (error) {
-    console.error("Error populating loans:", error);
-  }
-}
-
 // Helper function
 
 function normalizeData(data) {
@@ -120,4 +104,4 @@ function normalizeData(data) {
   });
 }
 
-module.exports = { predictInterestRate, populateLoans, getLoans };
+module.exports = { predictInterestRate, getLoans };
