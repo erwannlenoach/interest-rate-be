@@ -1,25 +1,21 @@
 const fs = require("fs");
 const path = require("path");
 const User = require("../models/users");
+const Loan = require("../models/loans");
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const crypto = require("crypto");
 const secretKey = crypto.randomBytes(64).toString("hex");
+const saltRounds = 10;
 
 async function createUsers(req, res) {
   const { email, username, password } = req.body;
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log(
-      "Debug: Email, Username, HashedPassword:",
-      email,
-      username,
-      hashedPassword
-    );
-
-    // Check if user already exists
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+  
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ error: "User already exists" });
@@ -30,7 +26,14 @@ async function createUsers(req, res) {
       username,
       password: hashedPassword,
     });
-    res.status(201).json({ message: "User created", user });
+
+  const token = jwt.sign(
+    { id: user.id, username: user.username },
+    secretKey,
+    { expiresIn: "1h" }
+  );
+    
+    res.status(201).json({ message: "User created", token });
   } catch (error) {
     console.error("Error in createUsers:", error);
 
@@ -86,6 +89,33 @@ async function getUser(req, res) {
   }
 }
 
+async function editPassword(req, res) {
+  const { email, currentPassword, newPassword } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    const match = await bcrypt.compare(currentPassword, user.password);
+
+    if (!match) {
+      return res.status(400).send({ message: "Current password is incorrect" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    await User.update({ password: hashedPassword }, { where: { email } });
+
+    res.status(200).send({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res.status(500).send({ message: "Internal server error" });
+  }
+}
+
 // Middleware d'authentification
 // Exemple de route protégée
 // Exemple de route protégée
@@ -107,4 +137,10 @@ async function authenticateToken(req, res, next) {
   }
 }
 
-module.exports = { createUsers, connexionUser, authenticateToken, getUser };
+module.exports = {
+  createUsers,
+  connexionUser,
+  authenticateToken,
+  getUser,
+  editPassword,
+};

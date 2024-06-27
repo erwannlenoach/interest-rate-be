@@ -1,10 +1,10 @@
 const bcrypt = require("bcryptjs");
-const User = require("./models/users"); // Adjust the path according to your project structure
-const Loan = require("./models/loans"); // Adjust the path according to your project structure
+const User = require("./models/users");
+const Loan = require("./models/loans");  
 
 const { defaultUsers, mockLoans } = require("./constants");
 
-const sequelize = require("./db"); // Your Sequelize instance
+const sequelize = require("./db");
 
 async function generateUsers() {
   try {

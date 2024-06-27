@@ -83,7 +83,7 @@ const mockLoans = [
     company_credit_rating_value: 7,
     subordination: 1,
     interest_rate: 5,
-    userId: 1,
+    UserId: 1,
   },
   {
     debt_to_income_ratio: 0.3,
@@ -97,7 +97,7 @@ const mockLoans = [
     company_credit_rating_value: 8,
     subordination: 2,
     interest_rate: 4.5,
-    userId: 2,
+    UserId: 2,
   },
   {
     debt_to_income_ratio: 0.2,
@@ -111,7 +111,7 @@ const mockLoans = [
     company_credit_rating_value: 9,
     subordination: 3,
     interest_rate: 4,
-    userId: 1,
+    UserId: 1,
   },
   {
     debt_to_income_ratio: 0.5,
@@ -125,7 +125,7 @@ const mockLoans = [
     company_credit_rating_value: 6,
     subordination: 1,
     interest_rate: 5.5,
-    userId: 3,
+    UserId: 3,
   },
   {
     debt_to_income_ratio: 0.4,
@@ -139,7 +139,7 @@ const mockLoans = [
     company_credit_rating_value: 7.5,
     subordination: 2,
     interest_rate: 5.2,
-    userId: 1,
+    UserId: 1,
   },
 ];
 

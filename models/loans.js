@@ -41,14 +41,7 @@ Loan.init(
     },
     interest_rate: {
       type: DataTypes.FLOAT,
-    },
-    userId: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: User,
-        key: "id",
-      },
-    },
+    }
   },
   {
     sequelize,
@@ -57,7 +50,7 @@ Loan.init(
   }
 );
 
-User.hasMany(Loan, { foreignKey: "userId" });
-Loan.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(Loan);
+Loan.belongsTo(User);
 
 module.exports = Loan;

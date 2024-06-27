@@ -6,22 +6,24 @@ const { generateUsers, generateLoans } = require("./seeder");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const loanRoutes = require("./routes/loan");
 const userRoutes = require("./routes/users");
 
 const app = express();
 const port = 8800;
-const secretKey = "your_secret_key";
 
 app.use(bodyParser.json());
+
 app.use("/api", loanRoutes);
 app.use("/api", userRoutes);
+app.options("*", cors()); // Preflight requests
 
 async function connectDB() {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({force:true});
+    await sequelize.sync({ force: true });
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
