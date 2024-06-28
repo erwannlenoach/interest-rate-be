@@ -50,7 +50,7 @@ Loan.init(
   }
 );
 
-User.hasMany(Loan);
+User.hasMany(Loan, { as: 'loans' });
 Loan.belongsTo(User);
 
 module.exports = Loan;
