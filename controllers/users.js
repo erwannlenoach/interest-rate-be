@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
@@ -110,10 +110,25 @@ async function editPassword(req, res) {
   }
 }
 
+async function editUsername(req, res) {
+  const { email, username } = req.body;
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    await User.update({ username }, { where: { email } });
+    res.status(200).send({ message: "Username updated successfully" });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res.status(500).send({ message: "Internal server error" });
+  }
+}
+
 async function authenticateToken(req, res, next) {
   try {
     const authHeader = req.header("Authorization");
-    const token = authHeader.split(" ")[1]; 
+    const token = authHeader.split(" ")[1];
     if (!token) return res.status(401).json({ error: "No token provided" });
     jwt.verify(token, secretKey, (err, user) => {
       if (err) return res.status(403).json({ error: "Invalid token" });
@@ -131,4 +146,5 @@ module.exports = {
   authenticateToken,
   getUser,
   editPassword,
+  editUsername
 };

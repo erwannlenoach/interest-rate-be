@@ -16,9 +16,11 @@ const port = 8800;
 
 app.use(bodyParser.json());
 
+app.options("*", cors()); 
+
 app.use("/api", loanRoutes);
 app.use("/api", userRoutes);
-app.options("*", cors()); // Preflight requests
+
 
 async function connectDB() {
   try {
