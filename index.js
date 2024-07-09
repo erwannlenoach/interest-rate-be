@@ -31,8 +31,8 @@ async function connectDB() {
 
 async function init() {
   await connectDB();
-  await generateUsers();
-  await generateLoans();
+  if(User.count = 0){await generateUsers()};
+  if(Loan.count = 0){await generateLoans()};
   try {
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
