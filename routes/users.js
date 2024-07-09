@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.post('/register', createUsers);
 router.post('/login', connexionUser);
-router.get('/profile', authenticateToken, getUser);
-router.post('/password/edit', editPassword);
+router.post('/profile', authenticateToken,getUser);
+router.post('/password/edit', authenticateToken,editPassword);
 
 module.exports = router;
