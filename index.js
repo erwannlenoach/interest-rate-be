@@ -23,7 +23,7 @@ app.options("*", cors()); // Preflight requests
 async function connectDB() {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ force: true });
+    await sequelize.sync();
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
