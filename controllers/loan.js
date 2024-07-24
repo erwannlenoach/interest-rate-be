@@ -5,7 +5,7 @@ const Loan = require("../models/loans");
 
 const { industrySectors, regions, creditRatings } = require("../constants");
 
-const modelPath = "file://../ml/model.json";
+const InterestRateModelPath = "file://../ml/interest_rates/model.json";
 
 class L2 {
   static className = "L2";
@@ -18,7 +18,7 @@ async function predictInterestRate(req, res) {
   try {
     tf.serialization.registerClass(L2);
 
-    const model = await tf.loadLayersModel(`file://${modelPath}`);
+    const model = await tf.loadLayersModel(`file://${InterestRateModelPath}`);
 
     const loanData = req.body;
     const sectorIndex = industrySectors[loanData.Sector];
@@ -93,7 +93,7 @@ async function getLoans(req, res) {
 // Helper function
 
 function normalizeData(data) {
-  const scalerPath = path.join(__dirname, "../ml/scaler.json");
+  const scalerPath = path.join(__dirname, "../ml/interest_rates/scaler.json");
 
   const scaler = JSON.parse(fs.readFileSync(scalerPath, "utf8"));
   const mean = scaler.mean;

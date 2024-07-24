@@ -86,10 +86,16 @@ async function getUser(req, res) {
 }
 
 async function editPassword(req, res) {
-  const { email, currentPassword, newPassword } = req.body;
+  const { email, currentPassword, newPassword, confirmPassword } = req.body;
+  console.log("current password in it:", currentPassword);
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).send({ message: "New passwords do not match" });
+  }
 
   try {
     const user = await User.findOne({ where: { email } });
+    console.log("User Found:", user);
 
     if (!user) {
       return res.status(404).send({ message: "User not found" });
@@ -118,7 +124,9 @@ async function editUsername(req, res) {
       return res.status(404).send({ message: "User not found" });
     }
     await User.update({ username }, { where: { email } });
-    res.status(200).send({ message: "Username updated successfully" });
+    res
+      .status(200)
+      .send({ username, message: "Username updated successfully" });
   } catch (error) {
     console.error("Error updating password:", error);
     res.status(500).send({ message: "Internal server error" });
@@ -146,5 +154,5 @@ module.exports = {
   authenticateToken,
   getUser,
   editPassword,
-  editUsername
+  editUsername,
 };

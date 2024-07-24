@@ -143,7 +143,56 @@ const mockLoans = [
   },
 ];
 
+const industries = [
+  'manufacturing',
+  'services',
+  'technology',
+  'retail',
+  'finance',
+  'healthcare',
+  'energy',
+  'transportation',
+];
+
+const functions = [
+  'manufacturing',
+  'R&D',
+  'marketing',
+  'sales',
+  'administration',
+  'logistics',
+  'holding',
+];
+
+const mockProfitSplits = [
+  {
+    hq_revenue: 1000000,
+    hq_cost: 700000,
+    hq_profit: 300000,
+    hq_assets: 1200000,
+    hq_liabilities: 800000,
+    subs_revenue: 500000,
+    subs_cost: 300000,
+    subs_profit: 200000,
+    subs_assets: 600000,
+    subs_liabilities: 400000,
+    hq_functions: 1,
+    subs_functions: 2,
+    hq_industry: 'manufacturing',
+    subs_industry: 'services',
+    hq_function: 'manufacturing',
+    subs_function: 'R&D',
+    profit_allocation_key: 0.6,
+    UserId: 1,
+  },
+  // Add more mock data objects as needed
+];
+
+
 module.exports = {
+  industries,
+  functions,
+  mockProfitSplits,
   industrySectors,
   regions,
   creditRatings,

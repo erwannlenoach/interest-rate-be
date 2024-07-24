@@ -1,5 +1,6 @@
 const Loan = require("./models/loans");
 const User = require("./models/users");
+const ProfitSplit = require("./models/profit-split");
 
 const sequelize = require("./db");
 const { generateUsers, generateLoans } = require("./seeder");
@@ -16,11 +17,10 @@ const port = 8800;
 
 app.use(bodyParser.json());
 
-app.options("*", cors()); 
+app.options("*", cors());
 
 app.use("/api", loanRoutes);
 app.use("/api", userRoutes);
-
 
 async function connectDB() {
   try {
@@ -33,8 +33,15 @@ async function connectDB() {
 
 async function init() {
   await connectDB();
-  if(User.count = 0){await generateUsers()};
-  if(Loan.count = 0){await generateLoans()};
+  if ((ProfitSplit.count = 0)) {
+    await generateProfitSplits();
+  }
+  if ((User.count = 0)) {
+    await generateUsers();
+  }
+  if ((Loan.count = 0)) {
+    await generateLoans();
+  }
   try {
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
