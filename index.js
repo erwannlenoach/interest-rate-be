@@ -10,6 +10,7 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const loanRoutes = require("./routes/loan");
+const profitSplitRoutes = require("./routes/profit-split");
 const userRoutes = require("./routes/users");
 
 const app = express();
@@ -21,6 +22,7 @@ app.options("*", cors());
 
 app.use("/api", loanRoutes);
 app.use("/api", userRoutes);
+app.use("/api", profitSplitRoutes);
 
 async function connectDB() {
   try {

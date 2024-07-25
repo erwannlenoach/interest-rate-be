@@ -1,20 +1,17 @@
 const tf = require("@tensorflow/tfjs-node");
 const fs = require("fs");
 const path = require("path");
-const ProfitSplit = require("../models/profit_split");
+const ProfitSplit = require("../models/profit-split");
 const { industries, functions } = require("../constants");
 
-const modelPath = "file:///path/to/your/saved_model/model.json";
+const profitSplitModelPath = "file://" + path.resolve(__dirname, "../ml/profit_split/model.json");
 let model;
 
-// Load the TensorFlow model
 const loadModel = async () => {
   if (!model) {
-    model = await tf.loadLayersModel(modelPath);
-  }
+    model = await tf.loadGraphModel(profitSplitModelPath);  }
 };
 
-// Normalize data according to the scaler used during training
 const normalizeData = (data) => {
   const scalerPath = path.join(__dirname, "../ml/profit_split/scaler.json");
   const scaler = JSON.parse(fs.readFileSync(scalerPath, "utf8"));

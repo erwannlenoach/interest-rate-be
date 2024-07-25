@@ -5,7 +5,7 @@ const Loan = require("../models/loans");
 
 const { industrySectors, regions, creditRatings } = require("../constants");
 
-const InterestRateModelPath = "file://../ml/interest_rates/model.json";
+const InterestRateModelPath = path.resolve(__dirname, "../ml/interest_rates/model.json");
 
 class L2 {
   static className = "L2";
@@ -18,7 +18,7 @@ async function predictInterestRate(req, res) {
   try {
     tf.serialization.registerClass(L2);
 
-    const model = await tf.loadLayersModel(`file://${InterestRateModelPath}`);
+    const model = await tf.loadGraphModel(`file://${InterestRateModelPath}`);
 
     const loanData = req.body;
     const sectorIndex = industrySectors[loanData.Sector];
