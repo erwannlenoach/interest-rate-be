@@ -88,30 +88,19 @@ const saveProfitSplit = async (profitSplitData) => {
   }
 };
 
-const generateProfitSplits = async () => {
+const getProfitSplitsByUser = async (req, res) => {
   try {
-    for (const profitSplit of mockProfitSplits) {
-      await ProfitSplit.create(profitSplit);
-    }
-    console.log("Profit splits populated successfully.");
-  } catch (error) {
-    console.error("Error populating profit splits:", error);
-  }
-};
-
-const getProfitSplits = async (req, res) => {
-  try {
-    const profitSplits = await ProfitSplit.findAll();
+    const { userId } = req.body; 
+    const profitSplits = await ProfitSplit.findAll({ where: { UserId: userId } });
     res.status(200).json({ profitSplits });
   } catch (error) {
-    console.error("Error getting profit splits:", error);
+    console.error("Error getting profit splits by user:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
 module.exports = {
   predictProfitSplit,
-  generateProfitSplits,
   saveProfitSplit,
-  getProfitSplits,
+  getProfitSplitsByUser,
 };

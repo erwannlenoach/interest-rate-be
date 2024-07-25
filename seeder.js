@@ -1,14 +1,15 @@
 const bcrypt = require("bcryptjs");
 const User = require("./models/users");
 const Loan = require("./models/loans");  
+const ProfitSplit = require("./models/profit-split");  
 
-const { defaultUsers, mockLoans } = require("./constants");
+
+const { defaultUsers, mockLoans, mockProfitSplits } = require("./constants");
 
 const sequelize = require("./db");
 
 async function generateUsers() {
   try {
-    await sequelize.sync({ force: true });
     for (const user of defaultUsers) {
       const hashedPassword = await bcrypt.hash(user.password, 10);
       await User.create({
@@ -23,6 +24,18 @@ async function generateUsers() {
   } 
 }
 
+  async function generateProfitSplits () {
+  try {
+    for (const profitSplit of mockProfitSplits) {
+      console.log("mock profit split" ,mockProfitSplits)
+      await ProfitSplit.create(profitSplit);
+    }
+    console.log("Profit splits populated successfully.");
+  } catch (error) {
+    console.error("Error populating profit splits:", error);
+  }
+}
+
 async function generateLoans() {
   try {
     for (const loan of mockLoans) {
@@ -34,4 +47,4 @@ async function generateLoans() {
   }
 }
 
-module.exports = { generateUsers, generateLoans };
+module.exports = { generateUsers, generateLoans, generateProfitSplits};

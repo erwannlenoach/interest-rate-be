@@ -185,7 +185,6 @@ const mockProfitSplits = [
     profit_allocation_key: 0.6,
     UserId: 1,
   },
-  // Add more mock data objects as needed
 ];
 
 

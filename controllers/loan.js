@@ -81,14 +81,17 @@ async function saveLoan(loanInformation) {
   }
 }
 
-async function getLoans(req, res) {
+
+const getLoansByUser = async (req, res) => {
   try {
-    const loans = await Loan.findAll();
+    const { userId } = req.body; 
+    const loans = await Loan.findAll({ where: { UserId: userId } });
     res.status(200).json({ loans });
   } catch (error) {
-    console.error("Error getting loans:", error);
+    console.error("Error getting loans by user:", error);
+    res.status(500).json({ error: error.message });
   }
-}
+};
 
 // Helper function
 
@@ -104,4 +107,4 @@ function normalizeData(data) {
   });
 }
 
-module.exports = { predictInterestRate, getLoans };
+module.exports = { predictInterestRate, getLoansByUser };

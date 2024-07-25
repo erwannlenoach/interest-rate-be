@@ -3,7 +3,11 @@ const User = require("./models/users");
 const ProfitSplit = require("./models/profit-split");
 
 const sequelize = require("./db");
-const { generateUsers, generateLoans } = require("./seeder");
+const {
+  generateUsers,
+  generateLoans,
+  generateProfitSplits,
+} = require("./seeder");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -35,15 +39,21 @@ async function connectDB() {
 
 async function init() {
   await connectDB();
-  if ((ProfitSplit.count = 0)) {
-    await generateProfitSplits();
-  }
-  if ((User.count = 0)) {
+
+  const profitSplitCount = await ProfitSplit.count();
+  const userCount = await User.count();
+  const loanCount = await Loan.count();
+
+  if (userCount === 0) {
     await generateUsers();
   }
-  if ((Loan.count = 0)) {
+  if (profitSplitCount === 0) {
+    await generateProfitSplits();
+  }
+  if (loanCount === 0) {
     await generateLoans();
   }
+
   try {
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);

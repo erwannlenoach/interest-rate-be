@@ -87,7 +87,6 @@ async function getUser(req, res) {
 
 async function editPassword(req, res) {
   const { email, currentPassword, newPassword, confirmPassword } = req.body;
-  console.log("current password in it:", currentPassword);
 
   if (newPassword !== confirmPassword) {
     return res.status(400).send({ message: "New passwords do not match" });
@@ -95,7 +94,6 @@ async function editPassword(req, res) {
 
   try {
     const user = await User.findOne({ where: { email } });
-    console.log("User Found:", user);
 
     if (!user) {
       return res.status(404).send({ message: "User not found" });
