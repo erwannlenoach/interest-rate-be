@@ -18,7 +18,6 @@ async function generateUsers() {
         password: hashedPassword,
       });
     }
-    console.log("Default users have been created.");
   } catch (error) {
     console.error("Error creating default users:", error);
   } 
@@ -27,7 +26,6 @@ async function generateUsers() {
   async function generateProfitSplits () {
   try {
     for (const profitSplit of mockProfitSplits) {
-      console.log("mock profit split" ,mockProfitSplits)
       await ProfitSplit.create(profitSplit);
     }
     console.log("Profit splits populated successfully.");
