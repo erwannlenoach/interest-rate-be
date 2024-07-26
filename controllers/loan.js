@@ -2,10 +2,18 @@ const tf = require("@tensorflow/tfjs-node");
 const fs = require("fs");
 const path = require("path");
 const Loan = require("../models/loans");
+const User = require("../models/users");
 
-const { industrySectors, regions, creditRatings } = require("../constants");
+const {
+  industryInterestRates,
+  regionsInterestRates,
+  creditRatings,
+} = require("../constants");
 
-const InterestRateModelPath = path.resolve(__dirname, "../ml/interest_rates/model.json");
+const InterestRateModelPath = path.resolve(
+  __dirname,
+  "../ml/interest_rates/model.json"
+);
 
 class L2 {
   static className = "L2";
@@ -20,22 +28,21 @@ async function predictInterestRate(req, res) {
 
     const model = await tf.loadGraphModel(`file://${InterestRateModelPath}`);
 
-    const loanData = req.body;
-    const sectorIndex = industrySectors[loanData.Sector];
-    const regionIndex = regions[loanData.Region];
+    const data = req.body;
+    const sectorIndex = industryInterestRates[data.formData.Sector];
+    const regionIndex = regionsInterestRates[data.formData.Region];
     const creditRatingIndex = creditRatings.indexOf(
-      loanData.Assigned_Credit_Rating
+      data.formData.Assigned_Credit_Rating
     );
 
-    // Prepare input data according to the model's expected features
     const dataML = [
-      loanData.Debt_to_Income_Ratio,
-      loanData.Loan_to_Value_Ratio,
-      loanData.Annual_Income,
-      loanData.Loan_Amount,
-      loanData.Loan_Term_Years,
-      loanData.Subordination,
-      loanData.Collateral_Value,
+      data.formData.Debt_to_Income_Ratio,
+      data.formData.Loan_to_Value_Ratio,
+      data.formData.Annual_Income,
+      data.formData.Loan_Amount,
+      data.formData.Loan_Term_Years,
+      data.formData.Subordination,
+      data.formData.Collateral_Value,
       creditRatingIndex,
       sectorIndex,
       regionIndex,
@@ -51,21 +58,25 @@ async function predictInterestRate(req, res) {
     const predictions = await model.predict(dataTensor).data();
 
     const formattedPredictions = Array.from(predictions);
-    const loanDataToSave = {
-      debt_to_income_ratio: loanData.Debt_to_Income_Ratio,
-      loan_to_value_ratio: loanData.Loan_to_Value_Ratio,
-      annual_income: loanData.Annual_Income,
-      loan_amount: loanData.Loan_Amount,
-      collateral_value: loanData.Collateral_Value,
+    const loanUser = await getUserbyUsername(data.username);
+
+    const dataToSave = {
+      debt_to_income_ratio: data.formData.Debt_to_Income_Ratio,
+      loan_to_value_ratio: data.formData.Loan_to_Value_Ratio,
+      annual_income: data.formData.Annual_Income,
+      loan_amount: data.formData.Loan_Amount,
+      collateral_value: data.formData.Collateral_Value,
       political_stability_index: regionIndex,
       sector_index: sectorIndex,
-      loan_term_years: loanData.Loan_Term_Years,
+      loan_term_years: data.formData.Loan_Term_Years,
       company_credit_rating_value: creditRatingIndex,
-      subordination: loanData.Subordination,
+      subordination: data.Subordination,
       interest_rate: formattedPredictions[0],
+      UserId: loanUser.id,
     };
+
     res.status(200).json({ prediction: formattedPredictions });
-    saveLoan(loanDataToSave);
+    saveLoan(dataToSave);
   } catch (error) {
     console.error("Error creating loan:", error);
     res.status(500).json({ error: error.message });
@@ -75,16 +86,14 @@ async function predictInterestRate(req, res) {
 async function saveLoan(loanInformation) {
   try {
     await Loan.create(loanInformation);
-    console.log("Loan saved successfully.");
   } catch (error) {
     console.error("Error saving the loan", error);
   }
 }
 
-
 const getLoansByUser = async (req, res) => {
   try {
-    const { userId } = req.body; 
+    const { userId } = req.body;
     const loans = await Loan.findAll({ where: { UserId: userId } });
     res.status(200).json({ loans });
   } catch (error) {
@@ -105,6 +114,15 @@ function normalizeData(data) {
   return data.map((value, index) => {
     return (value - mean[index]) / std[index];
   });
+}
+
+async function getUserbyUsername(username) {
+  try {
+    const user = await User.findOne({ where: { username } });
+    return user;
+  } catch (error) {
+    console.error("Error getting user:", error);
+  }
 }
 
 module.exports = { predictInterestRate, getLoansByUser };

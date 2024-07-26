@@ -2,14 +2,18 @@ const tf = require("@tensorflow/tfjs-node");
 const fs = require("fs");
 const path = require("path");
 const ProfitSplit = require("../models/profit-split");
-const { industries, functions } = require("../constants");
+const User = require("../models/users");
 
-const profitSplitModelPath = "file://" + path.resolve(__dirname, "../ml/profit_split/model.json");
+const { industriesProfitSplit, functionsProfitSplit } = require("../constants");
+
+const profitSplitModelPath =
+  "file://" + path.resolve(__dirname, "../ml/profit_split/model.json");
 let model;
 
 const loadModel = async () => {
   if (!model) {
-    model = await tf.loadGraphModel(profitSplitModelPath);  }
+    model = await tf.loadGraphModel(profitSplitModelPath);
+  }
 };
 
 const normalizeData = (data) => {
@@ -25,21 +29,21 @@ const normalizeData = (data) => {
 
 // One-hot encode categorical variables
 const oneHotEncode = (value, categories) => {
-  return categories.map(category => (category === value ? 1 : 0));
+  return categories.map((category) => (category === value ? 1 : 0));
 };
 
-const hqIndustryCategories = industries;
-const subsIndustryCategories = industries;
-const hqFunctionCategories = functions;
-const subsFunctionCategories = functions;
+const hqIndustryCategories = industriesProfitSplit;
+const subsIndustryCategories = industriesProfitSplit;
+const hqFunctionCategories = functionsProfitSplit;
+const subsFunctionCategories = functionsProfitSplit;
 
 const predictProfitSplit = async (req, res) => {
   try {
     await loadModel();
 
-    const inputData = req.body;
+    const inputData = req.body.formData;
+    const username = req.body.username;
 
-    // Prepare input data according to the model's expected features
     const dataML = [
       inputData.hq_revenue,
       inputData.hq_cost,
@@ -51,8 +55,6 @@ const predictProfitSplit = async (req, res) => {
       inputData.subs_profit,
       inputData.subs_assets,
       inputData.subs_liabilities,
-      inputData.hq_functions,
-      inputData.subs_functions,
       ...oneHotEncode(inputData.hq_industry, hqIndustryCategories),
       ...oneHotEncode(inputData.subs_industry, subsIndustryCategories),
       ...oneHotEncode(inputData.hq_function, hqFunctionCategories),
@@ -60,13 +62,19 @@ const predictProfitSplit = async (req, res) => {
     ];
 
     const normalizedData = normalizeData(dataML);
-    const dataTensor = tf.tensor2d([normalizedData], [1, normalizedData.length]);
+    const dataTensor = tf.tensor2d(
+      [normalizedData],
+      [1, normalizedData.length]
+    );
 
     const predictions = await model.predict(dataTensor).data();
     const formattedPredictions = Array.from(predictions);
+    const profitSplitUser = await getUserbyUsername(username);
+    console.log(profitSplitUser);
 
     const profitSplitData = {
       ...inputData,
+      UserId: profitSplitUser.id,
       profit_allocation_key: formattedPredictions[0],
     };
 
@@ -90,14 +98,25 @@ const saveProfitSplit = async (profitSplitData) => {
 
 const getProfitSplitsByUser = async (req, res) => {
   try {
-    const { userId } = req.body; 
-    const profitSplits = await ProfitSplit.findAll({ where: { UserId: userId } });
+    const { userId } = req.body;
+    const profitSplits = await ProfitSplit.findAll({
+      where: { UserId: userId },
+    });
     res.status(200).json({ profitSplits });
   } catch (error) {
     console.error("Error getting profit splits by user:", error);
     res.status(500).json({ error: error.message });
   }
 };
+
+async function getUserbyUsername(username) {
+  try {
+    const user = await User.findOne({ where: { username } });
+    return user;
+  } catch (error) {
+    console.error("Error getting user:", error);
+  }
+}
 
 module.exports = {
   predictProfitSplit,

@@ -46,14 +46,6 @@ ProfitSplit.init(
       type: DataTypes.FLOAT,
       allowNull: false,
     },
-    hq_functions: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
-    subs_functions: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
     hq_industry: {
       type: DataTypes.STRING,
       allowNull: false,
