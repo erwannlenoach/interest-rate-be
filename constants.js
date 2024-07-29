@@ -1,4 +1,4 @@
-const industrySectors = {
+const industryInterestRates = {
   Utilities: 6,
   Healthcare: 5,
   Telecommunications: 4,
@@ -13,7 +13,7 @@ const industrySectors = {
   Energy: 1,
 };
 
-const regions = {
+const regionsInterestRates = {
   "Northern America": 6,
   "Northern Europe": 6,
   Oceania: 5,
@@ -143,7 +143,7 @@ const mockLoans = [
   },
 ];
 
-const industries = [
+const industriesProfitSplit = [
   'manufacturing',
   'services',
   'technology',
@@ -154,7 +154,7 @@ const industries = [
   'transportation',
 ];
 
-const functions = [
+const functionsProfitSplit = [
   'manufacturing',
   'R&D',
   'marketing',
@@ -176,8 +176,8 @@ const mockProfitSplits = [
     subs_profit: 200000,
     subs_assets: 600000,
     subs_liabilities: 400000,
-    hq_functions: 1,
-    subs_functions: 2,
+    hq_functionsProfitSplit: 1,
+    subs_functionsProfitSplit: 2,
     hq_industry: 'manufacturing',
     subs_industry: 'services',
     hq_function: 'manufacturing',
@@ -189,11 +189,11 @@ const mockProfitSplits = [
 
 
 module.exports = {
-  industries,
-  functions,
+  industriesProfitSplit,
+  functionsProfitSplit,
   mockProfitSplits,
-  industrySectors,
-  regions,
+  industryInterestRates,
+  regionsInterestRates,
   creditRatings,
   defaultUsers,
   mockLoans,

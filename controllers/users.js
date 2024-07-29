@@ -1,8 +1,11 @@
 require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const { Op } = require("sequelize");
 const User = require("../models/users");
 const Loan = require("../models/loans");
+const transporter = require("../nodemailer");
 
 const saltRounds = 10;
 const secretKey = process.env.SECRET_KEY;
@@ -27,6 +30,12 @@ async function createUsers(req, res) {
       { id: user.id, username: user.username },
       secretKey,
       { expiresIn: "1h" }
+    );
+
+    await sendMail(
+      user.email,
+      "Account Created",
+      `Welcome ${user.username}, your account has been created on Nostra.`
     );
 
     res.status(201).json({ message: "User created", token });
@@ -114,6 +123,65 @@ async function editPassword(req, res) {
   }
 }
 
+async function resetPassword(req, res) {
+  const { newPassword } = req.body;
+  const { token } = req.params;
+
+  try {
+    const user = await User.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: { [Op.gt]: Date.now() },
+      },
+    });
+
+    if (!user) {
+      return res.status(400).send("Password reset token is invalid or has expired.");
+    }
+
+    user.password = await bcrypt.hash(newPassword, saltRounds);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    res.status(200).send("Password has been reset.");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+}
+
+async function forgotPassword(req, res) {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    const token = crypto.randomBytes(20).toString("hex");
+    const expiration = Date.now() + 3600000; 
+
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = expiration;
+    await user.save();
+
+    const resetLink = `http://localhost:3000/reset-password/${token}`;
+    const emailContent = `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+                          Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n
+                          ${resetLink}\n\n
+                          If you did not request this, please ignore this email and your password will remain unchanged.\n`;
+
+    await sendMail(user.email, "Password Reset", emailContent);
+
+    res.status(200).send("Recovery email sent");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+}
+
 async function editUsername(req, res) {
   const { email, username } = req.body;
   try {
@@ -146,11 +214,28 @@ async function authenticateToken(req, res, next) {
   }
 }
 
+async function sendMail(to, subject, text) {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to,
+    subject,
+    text,
+  };
+
+  transporter.sendMail(mailOptions, (err, response) => {
+    if (err) {
+      console.error("There was an error:", err);
+    }
+  });
+}
+
 module.exports = {
   createUsers,
   connexionUser,
   authenticateToken,
   getUser,
   editPassword,
+  forgotPassword,
+  resetPassword,
   editUsername,
 };
