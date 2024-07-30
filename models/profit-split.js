@@ -74,7 +74,7 @@ ProfitSplit.init(
   }
 );
 
-User.hasMany(ProfitSplit, { as: 'profit_splits' });
+User.hasMany(ProfitSplit, { as: "profit_splits" });
 ProfitSplit.belongsTo(User);
 
 module.exports = ProfitSplit;

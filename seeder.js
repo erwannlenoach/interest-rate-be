@@ -1,8 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("./models/users");
-const Loan = require("./models/loans");  
-const ProfitSplit = require("./models/profit-split");  
-
+const Loan = require("./models/loans");
+const ProfitSplit = require("./models/profit-split");
 
 const { defaultUsers, mockLoans, mockProfitSplits } = require("./constants");
 
@@ -20,10 +19,10 @@ async function generateUsers() {
     }
   } catch (error) {
     console.error("Error creating default users:", error);
-  } 
+  }
 }
 
-  async function generateProfitSplits () {
+async function generateProfitSplits() {
   try {
     for (const profitSplit of mockProfitSplits) {
       await ProfitSplit.create(profitSplit);
@@ -45,4 +44,4 @@ async function generateLoans() {
   }
 }
 
-module.exports = { generateUsers, generateLoans, generateProfitSplits};
+module.exports = { generateUsers, generateLoans, generateProfitSplits };

@@ -144,24 +144,24 @@ const mockLoans = [
 ];
 
 const industriesProfitSplit = [
-  'manufacturing',
-  'services',
-  'technology',
-  'retail',
-  'finance',
-  'healthcare',
-  'energy',
-  'transportation',
+  "manufacturing",
+  "services",
+  "technology",
+  "retail",
+  "finance",
+  "healthcare",
+  "energy",
+  "transportation",
 ];
 
 const functionsProfitSplit = [
-  'manufacturing',
-  'R&D',
-  'marketing',
-  'sales',
-  'administration',
-  'logistics',
-  'holding',
+  "manufacturing",
+  "R&D",
+  "marketing",
+  "sales",
+  "administration",
+  "logistics",
+  "holding",
 ];
 
 const mockProfitSplits = [
@@ -178,15 +178,14 @@ const mockProfitSplits = [
     subs_liabilities: 400000,
     hq_functionsProfitSplit: 1,
     subs_functionsProfitSplit: 2,
-    hq_industry: 'manufacturing',
-    subs_industry: 'services',
-    hq_function: 'manufacturing',
-    subs_function: 'R&D',
+    hq_industry: "manufacturing",
+    subs_industry: "services",
+    hq_function: "manufacturing",
+    subs_function: "R&D",
     profit_allocation_key: 0.6,
     UserId: 1,
   },
 ];
-
 
 module.exports = {
   industriesProfitSplit,

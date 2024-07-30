@@ -136,7 +136,9 @@ async function resetPassword(req, res) {
     });
 
     if (!user) {
-      return res.status(400).send("Password reset token is invalid or has expired.");
+      return res
+        .status(400)
+        .send("Password reset token is invalid or has expired.");
     }
 
     user.password = await bcrypt.hash(newPassword, saltRounds);
@@ -161,7 +163,7 @@ async function forgotPassword(req, res) {
     }
 
     const token = crypto.randomBytes(20).toString("hex");
-    const expiration = Date.now() + 3600000; 
+    const expiration = Date.now() + 3600000;
 
     user.resetPasswordToken = token;
     user.resetPasswordExpires = expiration;

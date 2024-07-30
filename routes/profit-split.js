@@ -1,5 +1,8 @@
 const express = require("express");
-const { predictProfitSplit, getProfitSplitsByUser } = require("../controllers/profit-split");
+const {
+  predictProfitSplit,
+  getProfitSplitsByUser,
+} = require("../controllers/profit-split");
 const router = express.Router();
 
 router.post("/profit-split", getProfitSplitsByUser);

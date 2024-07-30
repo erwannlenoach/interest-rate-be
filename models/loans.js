@@ -41,7 +41,7 @@ Loan.init(
     },
     interest_rate: {
       type: DataTypes.FLOAT,
-    }
+    },
   },
   {
     sequelize,
@@ -50,7 +50,7 @@ Loan.init(
   }
 );
 
-User.hasMany(Loan, { as: 'loans' });
+User.hasMany(Loan, { as: "loans" });
 Loan.belongsTo(User);
 
 module.exports = Loan;
