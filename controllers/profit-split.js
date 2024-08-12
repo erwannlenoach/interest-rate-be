@@ -109,6 +109,16 @@ const getProfitSplitsByUser = async (req, res) => {
   }
 };
 
+const deleteProfitSplitById = async (req, res) => {
+  try {
+    const profitSplitId = req.params.id;
+    await ProfitSplit.destroy({ where: { id: profitSplitId } });
+    res.status(200).json({ message: "Profit Split deleted successfully." });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete profit split." });
+  }
+};
+
 async function getUserbyUsername(username) {
   try {
     const user = await User.findOne({ where: { username } });
@@ -122,4 +132,5 @@ module.exports = {
   predictProfitSplit,
   saveProfitSplit,
   getProfitSplitsByUser,
+  deleteProfitSplitById,
 };

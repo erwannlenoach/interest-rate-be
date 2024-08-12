@@ -102,7 +102,17 @@ const getLoansByUser = async (req, res) => {
   }
 };
 
-// Helper function
+const deleteLoanById = async (req, res) => {
+  try {
+    console.log("requete", req.params);
+    const loanId = req.params.id;
+    await Loan.destroy({ where: { id: loanId } });
+    res.status(200).json({ message: "Loan deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting loan:", error);
+    res.status(500).json({ error: "Failed to delete loan." });
+  }
+};
 
 function normalizeData(data) {
   const scalerPath = path.join(__dirname, "../ml/interest_rates/scaler.json");
@@ -125,4 +135,4 @@ async function getUserbyUsername(username) {
   }
 }
 
-module.exports = { predictInterestRate, getLoansByUser };
+module.exports = { predictInterestRate, getLoansByUser, deleteLoanById };

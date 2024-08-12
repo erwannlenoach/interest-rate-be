@@ -9,8 +9,6 @@ const {
   generateProfitSplits,
 } = require("./seeder");
 const express = require("express");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const loanRoutes = require("./routes/loan");
