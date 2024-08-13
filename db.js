@@ -1,17 +1,17 @@
 const { Sequelize } = require('sequelize');
-require('dotenv').config();
-
-console.log('DATABASE_URL:', process.env.DATABASE_URL); // Add this line to check
+require('dotenv').config({
+  path: process.env.NODE_ENV === 'production' ? '.env' : '.env.development'
+});
 
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
   protocol: 'postgres',
   dialectOptions: {
-    ssl: {
+    ssl: process.env.NODE_ENV === 'production' ? {
       require: true,
       rejectUnauthorized: false
-    }
+    } : false
   }
 });
 
