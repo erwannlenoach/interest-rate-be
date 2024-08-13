@@ -20,7 +20,17 @@ const port = 8800;
 
 app.use(bodyParser.json());
 
-app.options("*", cors());
+const isProduction = process.env.NODE_ENV === "production";
+
+
+const corsOptions = {
+  origin: isProduction ? "https://www.nostratp.com" : "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use("/api", loanRoutes);
 app.use("/api", userRoutes);
@@ -61,4 +71,6 @@ async function init() {
   }
 }
 
-init();
+if (!isProduction) {
+  init();
+}
