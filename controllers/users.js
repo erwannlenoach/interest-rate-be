@@ -29,7 +29,7 @@ async function createUsers(req, res) {
     const token = jwt.sign(
       { id: user.id, username: user.username },
       secretKey,
-      { expiresIn: "1h" }
+      { expiresIn: "72h" }
     );
 
     await sendMail(
