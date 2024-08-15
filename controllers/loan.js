@@ -70,7 +70,7 @@ async function predictInterestRate(req, res) {
       sector_index: sectorIndex,
       loan_term_years: data.formData.Loan_Term_Years,
       company_credit_rating_value: creditRatingIndex,
-      subordination: data.Subordination,
+      subordination: data.formData.Subordination,
       interest_rate: formattedPredictions[0],
       UserId: loanUser.id,
     };
@@ -84,6 +84,7 @@ async function predictInterestRate(req, res) {
 }
 
 async function saveLoan(loanInformation) {
+  console.log("loan info", loanInformation)
   try {
     await Loan.create(loanInformation);
   } catch (error) {
