@@ -16,12 +16,11 @@ const profitSplitRoutes = require("./routes/profit-split");
 const userRoutes = require("./routes/users");
 
 const app = express();
-const port = 8800;
+const port = process.env.PORT || 8800;
 
 app.use(bodyParser.json());
 
 const isProduction = process.env.NODE_ENV === "production";
-
 
 const corsOptions = {
   origin: isProduction ? "https://www.nostratp.com" : "*",
@@ -71,6 +70,4 @@ async function init() {
   }
 }
 
-if (!isProduction) {
-  init();
-}
+init();
