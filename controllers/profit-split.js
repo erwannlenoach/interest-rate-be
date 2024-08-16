@@ -27,23 +27,63 @@ const normalizeData = (data) => {
   });
 };
 
-// One-hot encode categorical variables
-const oneHotEncode = (value, categories) => {
-  return categories.map((category) => (category === value ? 1 : 0));
-};
+// Function to calculate function weight based on industry
+const calculateFunctionWeight = (industry, func) => {
+  const industryWeights = {
+    'manufacturing': 1.2,
+    'services': 1.0,
+    'technology': 1.3,
+    'retail': 0.9,
+    'finance': 1.4,
+    'healthcare': 1.3,
+    'energy': 1.5,
+    'transportation': 1.1
+  };
 
-const hqIndustryCategories = industriesProfitSplit;
-const subsIndustryCategories = industriesProfitSplit;
-const hqFunctionCategories = functionsProfitSplit;
-const subsFunctionCategories = functionsProfitSplit;
+  const baseFunctionWeights = {
+    'R&D': 5,
+    'marketing': 3,
+    'sales': 4,
+    'administration': 2,
+    'logistics': 3,
+    'holding': 2,
+    'manufacturing': 4
+  };
+
+  const functionImportanceByIndustry = {
+    'manufacturing': {'R&D': 3, 'marketing': 2, 'sales': 4, 'administration': 2, 'logistics': 5, 'holding': 2, 'manufacturing': 5},
+    'services': {'R&D': 2, 'marketing': 3, 'sales': 5, 'administration': 3, 'logistics': 2, 'holding': 3, 'manufacturing': 2},
+    'technology': {'R&D': 6, 'marketing': 4, 'sales': 4, 'administration': 2, 'logistics': 3, 'holding': 2, 'manufacturing': 3},
+    'retail': {'R&D': 2, 'marketing': 5, 'sales': 5, 'administration': 2, 'logistics': 3, 'holding': 2, 'manufacturing': 3},
+    'finance': {'R&D': 3, 'marketing': 3, 'sales': 5, 'administration': 4, 'logistics': 2, 'holding': 5, 'manufacturing': 2},
+    'healthcare': {'R&D': 6, 'marketing': 3, 'sales': 3, 'administration': 2, 'logistics': 5, 'holding': 3, 'manufacturing': 4},
+    'energy': {'R&D': 4, 'marketing': 2, 'sales': 3, 'administration': 3, 'logistics': 6, 'holding': 3, 'manufacturing': 5},
+    'transportation': {'R&D': 3, 'marketing': 2, 'sales': 3, 'administration': 3, 'logistics': 6, 'holding': 2, 'manufacturing': 4}
+  };
+
+  return functionImportanceByIndustry[industry][func] * industryWeights[industry];
+};
 
 const predictProfitSplit = async (req, res) => {
   try {
     await loadModel();
 
     const inputData = req.body.formData;
-    const username = req.body.username;
+    const email = req.body.email;
 
+    // Calculate function weights
+    const hq_function_weight = calculateFunctionWeight(inputData.hq_industry, inputData.hq_function);
+    const subs_function_weight = calculateFunctionWeight(inputData.subs_industry, inputData.subs_function);
+
+    // Calculate additional features (ratios)
+    const hq_subs_profit_ratio = inputData.subs_profit !== 0 
+        ? inputData.hq_profit / inputData.subs_profit 
+        : 0;
+    const hq_subs_assets_ratio = inputData.subs_assets !== 0 
+        ? inputData.hq_assets / inputData.subs_assets 
+        : 0;
+
+    // Prepare the data for prediction
     const dataML = [
       inputData.hq_revenue,
       inputData.hq_cost,
@@ -55,10 +95,10 @@ const predictProfitSplit = async (req, res) => {
       inputData.subs_profit,
       inputData.subs_assets,
       inputData.subs_liabilities,
-      ...oneHotEncode(inputData.hq_industry, hqIndustryCategories),
-      ...oneHotEncode(inputData.subs_industry, subsIndustryCategories),
-      ...oneHotEncode(inputData.hq_function, hqFunctionCategories),
-      ...oneHotEncode(inputData.subs_function, subsFunctionCategories),
+      hq_subs_profit_ratio,  // Add calculated ratio
+      hq_subs_assets_ratio,  // Add calculated ratio
+      hq_function_weight,    // Add calculated function weight for HQ
+      subs_function_weight   // Add calculated function weight for Subsidiary
     ];
 
     const normalizedData = normalizeData(dataML);
@@ -69,8 +109,7 @@ const predictProfitSplit = async (req, res) => {
 
     const predictions = await model.predict(dataTensor).data();
     const formattedPredictions = Array.from(predictions);
-    const profitSplitUser = await getUserbyUsername(username);
-    console.log(profitSplitUser);
+    const profitSplitUser = await getUserByEmail(email);
 
     const profitSplitData = {
       ...inputData,
@@ -119,9 +158,9 @@ const deleteProfitSplitById = async (req, res) => {
   }
 };
 
-async function getUserbyUsername(username) {
+async function getUserByEmail(email) {
   try {
-    const user = await User.findOne({ where: { username } });
+    const user = await User.findOne({ where: { email } });
     return user;
   } catch (error) {
     console.error("Error getting user:", error);

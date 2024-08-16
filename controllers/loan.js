@@ -58,7 +58,7 @@ async function predictInterestRate(req, res) {
     const predictions = await model.predict(dataTensor).data();
 
     const formattedPredictions = Array.from(predictions);
-    const loanUser = await getUserbyUsername(data.username);
+    const loanUser = await getUserByEmail(data.email);
 
     const dataToSave = {
       debt_to_income_ratio: data.formData.Debt_to_Income_Ratio,
@@ -84,7 +84,6 @@ async function predictInterestRate(req, res) {
 }
 
 async function saveLoan(loanInformation) {
-  console.log("loan info", loanInformation)
   try {
     await Loan.create(loanInformation);
   } catch (error) {
@@ -105,7 +104,6 @@ const getLoansByUser = async (req, res) => {
 
 const deleteLoanById = async (req, res) => {
   try {
-    console.log("requete", req.params);
     const loanId = req.params.id;
     await Loan.destroy({ where: { id: loanId } });
     res.status(200).json({ message: "Loan deleted successfully." });
@@ -127,9 +125,9 @@ function normalizeData(data) {
   });
 }
 
-async function getUserbyUsername(username) {
+async function getUserByEmail(email) {
   try {
-    const user = await User.findOne({ where: { username } });
+    const user = await User.findOne({ where: { email } });
     return user;
   } catch (error) {
     console.error("Error getting user:", error);
