@@ -27,7 +27,7 @@ async function createUsers(req, res) {
     });
 
     const token = jwt.sign(
-      { id: user.id, username: user.username },
+      { id: user.id, email: user.email },
       secretKey,
       { expiresIn: "72h" }
     );
@@ -63,9 +63,9 @@ async function connexionUser(req, res) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
     const token = jwt.sign(
-      { id: user.id, username: user.username },
+      { id: user.id, email: user.email },
       secretKey,
-      { expiresIn: "1h" }
+      { expiresIn: "72h" }
     );
     res.json({ token });
   } catch (error) {
@@ -77,7 +77,7 @@ async function connexionUser(req, res) {
 async function getUser(req, res) {
   try {
     const user = await User.findOne({
-      where: { email: req.body.username },
+      where: { email: req.body.email },
       include: [
         {
           model: Loan,
