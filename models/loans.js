@@ -41,14 +41,7 @@ Loan.init(
     },
     interest_rate: {
       type: DataTypes.FLOAT,
-    },
-    user_source: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-    title: {
-      type: DataTypes.STRING,
-    },
+    }
   },
   {
     sequelize,
