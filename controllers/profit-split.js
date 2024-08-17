@@ -4,8 +4,6 @@ const path = require("path");
 const ProfitSplit = require("../models/profit-split");
 const User = require("../models/users");
 
-const { industriesProfitSplit, functionsProfitSplit } = require("../constants");
-
 const profitSplitModelPath =
   "file://" + path.resolve(__dirname, "../ml/profit_split/model.json");
 let model;
@@ -30,38 +28,154 @@ const normalizeData = (data) => {
 // Function to calculate function weight based on industry
 const calculateFunctionWeight = (industry, func) => {
   const industryWeights = {
-    'manufacturing': 1.2,
-    'services': 1.0,
-    'technology': 1.3,
-    'retail': 0.9,
-    'finance': 1.4,
-    'healthcare': 1.3,
-    'energy': 1.5,
-    'transportation': 1.1
+    manufacturing: 1.2,
+    services: 1.0,
+    technology: 1.3,
+    retail: 0.9,
+    finance: 1.4,
+    healthcare: 1.3,
+    energy: 1.5,
+    transportation: 1.1,
   };
 
   const baseFunctionWeights = {
-    'R&D': 5,
-    'marketing': 3,
-    'sales': 4,
-    'administration': 2,
-    'logistics': 3,
-    'holding': 2,
-    'manufacturing': 4
+    "R&D": 5,
+    marketing: 3,
+    sales: 4,
+    administration: 2,
+    logistics: 3,
+    holding: 2,
+    manufacturing: 4,
+    financing: 5,
+    supply_chain: 4,
   };
 
   const functionImportanceByIndustry = {
-    'manufacturing': {'R&D': 3, 'marketing': 2, 'sales': 4, 'administration': 2, 'logistics': 5, 'holding': 2, 'manufacturing': 5},
-    'services': {'R&D': 2, 'marketing': 3, 'sales': 5, 'administration': 3, 'logistics': 2, 'holding': 3, 'manufacturing': 2},
-    'technology': {'R&D': 6, 'marketing': 4, 'sales': 4, 'administration': 2, 'logistics': 3, 'holding': 2, 'manufacturing': 3},
-    'retail': {'R&D': 2, 'marketing': 5, 'sales': 5, 'administration': 2, 'logistics': 3, 'holding': 2, 'manufacturing': 3},
-    'finance': {'R&D': 3, 'marketing': 3, 'sales': 5, 'administration': 4, 'logistics': 2, 'holding': 5, 'manufacturing': 2},
-    'healthcare': {'R&D': 6, 'marketing': 3, 'sales': 3, 'administration': 2, 'logistics': 5, 'holding': 3, 'manufacturing': 4},
-    'energy': {'R&D': 4, 'marketing': 2, 'sales': 3, 'administration': 3, 'logistics': 6, 'holding': 3, 'manufacturing': 5},
-    'transportation': {'R&D': 3, 'marketing': 2, 'sales': 3, 'administration': 3, 'logistics': 6, 'holding': 2, 'manufacturing': 4}
+    manufacturing: {
+      "R&D": 3,
+      marketing: 2,
+      sales: 4,
+      administration: 2,
+      logistics: 5,
+      holding: 2,
+      manufacturing: 5,
+      financing: 2,
+      supply_chain: 5,
+    },
+    services: {
+      "R&D": 2,
+      marketing: 3,
+      sales: 5,
+      administration: 3,
+      logistics: 2,
+      holding: 3,
+      manufacturing: 2,
+      financing: 4,
+      supply_chain: 3,
+    },
+    technology: {
+      "R&D": 6,
+      marketing: 4,
+      sales: 4,
+      administration: 2,
+      logistics: 3,
+      holding: 2,
+      manufacturing: 3,
+      financing: 3,
+      supply_chain: 4,
+    },
+    retail: {
+      "R&D": 2,
+      marketing: 5,
+      sales: 5,
+      administration: 2,
+      logistics: 3,
+      holding: 2,
+      manufacturing: 3,
+      financing: 3,
+      supply_chain: 5,
+    },
+    finance: {
+      "R&D": 3,
+      marketing: 3,
+      sales: 5,
+      administration: 4,
+      logistics: 2,
+      holding: 5,
+      manufacturing: 2,
+      financing: 6,
+      supply_chain: 3,
+    },
+    healthcare: {
+      "R&D": 6,
+      marketing: 3,
+      sales: 3,
+      administration: 2,
+      logistics: 5,
+      holding: 3,
+      manufacturing: 4,
+      financing: 4,
+      supply_chain: 4,
+    },
+    energy: {
+      "R&D": 4,
+      marketing: 2,
+      sales: 3,
+      administration: 3,
+      logistics: 6,
+      holding: 3,
+      manufacturing: 5,
+      financing: 5,
+      supply_chain: 6,
+    },
+    transportation: {
+      "R&D": 3,
+      marketing: 2,
+      sales: 3,
+      administration: 3,
+      logistics: 6,
+      holding: 2,
+      manufacturing: 4,
+      financing: 4,
+      supply_chain: 5,
+    },
   };
 
-  return functionImportanceByIndustry[industry][func] * industryWeights[industry];
+  return (
+    functionImportanceByIndustry[industry][func] * industryWeights[industry]
+  );
+};
+
+// Function to calculate risk based on function and industry
+const calculateRiskFactor = (industry, func) => {
+  const functionRiskFactors = {
+    "R&D": 1.4,
+    marketing: 1.2,
+    sales: 1.3,
+    administration: 1.1,
+    logistics: 1.5,
+    holding: 1.2,
+    manufacturing: 1.4,
+    financing: 1.6,
+    supply_chain: 1.5,
+  };
+
+  const industryRiskMultipliers = {
+    manufacturing: 1.3,
+    services: 1.0,
+    technology: 1.5,
+    retail: 1.2,
+    finance: 1.4,
+    healthcare: 1.6,
+    energy: 1.7,
+    transportation: 1.3,
+  };
+
+  return functionRiskFactors[func] * industryRiskMultipliers[industry];
+};
+
+const safeRatio = (numerator, denominator, defaultValue = 1) => {
+  return denominator === 0 ? defaultValue : numerator / denominator;
 };
 
 const predictProfitSplit = async (req, res) => {
@@ -72,18 +186,67 @@ const predictProfitSplit = async (req, res) => {
     const email = req.body.email;
 
     // Calculate function weights
-    const hq_function_weight = calculateFunctionWeight(inputData.hq_industry, inputData.hq_function);
-    const subs_function_weight = calculateFunctionWeight(inputData.subs_industry, inputData.subs_function);
+    const hq_function_weight = calculateFunctionWeight(
+      inputData.hq_industry,
+      inputData.hq_function
+    );
+    const subs_function_weight = calculateFunctionWeight(
+      inputData.subs_industry,
+      inputData.subs_function
+    );
 
-    // Calculate additional features (ratios)
-    const hq_subs_profit_ratio = inputData.subs_profit !== 0 
-        ? inputData.hq_profit / inputData.subs_profit 
-        : 0;
-    const hq_subs_assets_ratio = inputData.subs_assets !== 0 
-        ? inputData.hq_assets / inputData.subs_assets 
-        : 0;
+    // Calculate risk factors
+    const hq_risk_factor = calculateRiskFactor(
+      inputData.hq_industry,
+      inputData.hq_function
+    );
+    const subs_risk_factor = calculateRiskFactor(
+      inputData.subs_industry,
+      inputData.subs_function
+    );
 
-    // Prepare the data for prediction
+    // Calculate shared risk: If HQ and Subs share a function, average their risks
+    const shared_risk =
+      inputData.hq_function === inputData.subs_function
+        ? (hq_risk_factor + subs_risk_factor) / 2
+        : hq_risk_factor + subs_risk_factor;
+
+    // Calculate additional features (ratios) and apply capping logic
+    const ratioCap = 10;
+    const revenue_ratio = Math.min(
+      Math.max(
+        safeRatio(inputData.hq_revenue, inputData.subs_revenue),
+        1 / ratioCap
+      ),
+      ratioCap
+    );
+    const cost_ratio = Math.min(
+      Math.max(safeRatio(inputData.hq_cost, inputData.subs_cost), 1 / ratioCap),
+      ratioCap
+    );
+    const profit_ratio = Math.min(
+      Math.max(
+        safeRatio(inputData.hq_profit, inputData.subs_profit),
+        1 / ratioCap
+      ),
+      ratioCap
+    );
+    const assets_ratio = Math.min(
+      Math.max(
+        safeRatio(inputData.hq_assets, inputData.subs_assets),
+        1 / ratioCap
+      ),
+      ratioCap
+    );
+    const liabilities_ratio = Math.min(
+      Math.max(
+        safeRatio(inputData.hq_liabilities, inputData.subs_liabilities),
+        1 / ratioCap
+      ),
+      ratioCap
+    );
+
+    // Prepare the data for prediction, including the calculated risk factors and shared risk
     const dataML = [
       inputData.hq_revenue,
       inputData.hq_cost,
@@ -95,10 +258,14 @@ const predictProfitSplit = async (req, res) => {
       inputData.subs_profit,
       inputData.subs_assets,
       inputData.subs_liabilities,
-      hq_subs_profit_ratio,  // Add calculated ratio
-      hq_subs_assets_ratio,  // Add calculated ratio
-      hq_function_weight,    // Add calculated function weight for HQ
-      subs_function_weight   // Add calculated function weight for Subsidiary
+      hq_risk_factor,
+      subs_risk_factor,
+      shared_risk,
+      revenue_ratio,
+      cost_ratio,
+      profit_ratio,
+      assets_ratio,
+      liabilities_ratio,
     ];
 
     const normalizedData = normalizeData(dataML);
