@@ -275,18 +275,21 @@ const predictProfitSplit = async (req, res) => {
     );
 
     const predictions = await model.predict(dataTensor).data();
-    const formattedPredictions = Array.from(predictions);
+    let profitAllocationKey = Array.from(predictions)[0];
+
+    profitAllocationKey = Math.min(profitAllocationKey, 1);
+
     const profitSplitUser = await getUserByEmail(email);
 
     const profitSplitData = {
       ...inputData,
       UserId: profitSplitUser.id,
-      profit_allocation_key: formattedPredictions[0],
+      profit_allocation_key: profitAllocationKey,
     };
 
     await saveProfitSplit(profitSplitData);
 
-    res.status(200).json({ prediction: formattedPredictions[0] });
+    res.status(200).json({ prediction: profitAllocationKey });
   } catch (error) {
     console.error("Error predicting profit split:", error);
     res.status(500).json({ error: error.message });
