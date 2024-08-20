@@ -9,9 +9,17 @@ const transporter = require("../nodemailer");
 
 const saltRounds = 10;
 const secretKey = process.env.SECRET_KEY;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
 async function createUsers(req, res) {
   const { email, username, password } = req.body;
+
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({
+      error:
+        "Password must be at least 8 characters long, include uppercase and lowercase letters, and a number.",
+    });
+  }
 
   try {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -26,11 +34,9 @@ async function createUsers(req, res) {
       password: hashedPassword,
     });
 
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      secretKey,
-      { expiresIn: "72h" }
-    );
+    const token = jwt.sign({ id: user.id, email: user.email }, secretKey, {
+      expiresIn: "72h",
+    });
 
     await sendMail(
       user.email,
@@ -62,11 +68,9 @@ async function connexionUser(req, res) {
     if (!isValid) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      secretKey,
-      { expiresIn: "72h" }
-    );
+    const token = jwt.sign({ id: user.id, email: user.email }, secretKey, {
+      expiresIn: "72h",
+    });
     res.json({ token });
   } catch (error) {
     console.error("Error finding the user", error);
@@ -96,6 +100,13 @@ async function getUser(req, res) {
 
 async function editPassword(req, res) {
   const { email, currentPassword, newPassword, confirmPassword } = req.body;
+
+  if (!passwordRegex.test(newPassword)) {
+    return res.status(400).send({
+      message:
+        "Password must be at least 8 characters long, include uppercase and lowercase letters, and a number.",
+    });
+  }
 
   if (newPassword !== confirmPassword) {
     return res.status(400).send({ message: "New passwords do not match" });
