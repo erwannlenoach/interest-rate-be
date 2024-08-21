@@ -31,9 +31,12 @@ async function predictInterestRate(req, res) {
     const data = req.body;
     const sectorIndex = industryInterestRates[data.formData.Sector];
     const regionIndex = regionsInterestRates[data.formData.Region];
-    const creditRatingIndex = creditRatings.indexOf(
-      data.formData.Assigned_Credit_Rating
-    );
+
+    const defaultCreditRatingIndex = Math.floor(creditRatings.length / 2); // Assign the median rating index if no rating is provided
+
+    const creditRatingIndex = data.formData.Assigned_Credit_Rating
+      ? creditRatings.indexOf(data.formData.Assigned_Credit_Rating)
+      : defaultCreditRatingIndex;
 
     const dataML = [
       data.formData.Debt_to_Income_Ratio,
@@ -58,6 +61,11 @@ async function predictInterestRate(req, res) {
     const predictions = await model.predict(dataTensor).data();
 
     const formattedPredictions = Array.from(predictions);
+
+    const interestRateCap = 30.0; 
+
+    const cappedPrediction = Math.min(formattedPredictions[0], interestRateCap);
+
     const loanUser = await getUserByEmail(data.email);
 
     const dataToSave = {
@@ -71,17 +79,18 @@ async function predictInterestRate(req, res) {
       loan_term_years: data.formData.Loan_Term_Years,
       company_credit_rating_value: creditRatingIndex,
       subordination: data.formData.Subordination,
-      interest_rate: formattedPredictions[0],
+      interest_rate: cappedPrediction, 
       UserId: loanUser.id,
     };
 
-    res.status(200).json({ prediction: formattedPredictions });
+    res.status(200).json({ prediction: cappedPrediction });
     saveLoan(dataToSave);
   } catch (error) {
     console.error("Error creating loan:", error);
     res.status(500).json({ error: error.message });
   }
 }
+
 
 async function saveLoan(loanInformation) {
   try {
