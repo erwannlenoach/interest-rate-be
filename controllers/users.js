@@ -9,7 +9,7 @@ const transporter = require("../nodemailer");
 
 const saltRounds = 10;
 const secretKey = process.env.SECRET_KEY;
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d\W]{8,}$/;
 
 async function createUsers(req, res) {
   const { email, username, password } = req.body;

@@ -26,8 +26,16 @@ Loan.init(
     political_stability_index: {
       type: DataTypes.INTEGER,
     },
+    region: {
+      type: DataTypes.STRING, 
+      allowNull: false,
+    },
     sector_index: {
       type: DataTypes.INTEGER,
+    },
+    sector: {
+      type: DataTypes.STRING, 
+      allowNull: false,
     },
     loan_term_years: {
       type: DataTypes.FLOAT,
