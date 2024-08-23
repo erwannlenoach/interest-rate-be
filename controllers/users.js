@@ -180,7 +180,8 @@ async function forgotPassword(req, res) {
     user.resetPasswordExpires = expiration;
     await user.save();
 
-    const resetLink = `http://localhost:3000/reset-password/${token}`;
+    const resetLink = `${process.env.BASE_URL}/reset-password/${token}`;
+
     const emailContent = `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
                           Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n
                           ${resetLink}\n\n
